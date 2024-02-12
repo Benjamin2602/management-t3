@@ -1,4 +1,5 @@
 "use client";
+import React, { useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,8 +27,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "../ui/textarea";
+import { useRouter } from "next/navigation";
+import { api } from "@/trpc/react";
 
 const StudentForm = () => {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
   const formSchema = z.object({
     name: z.string(),
     department: z.string(),
@@ -49,10 +55,24 @@ const StudentForm = () => {
     },
   });
 
+  const createStudents = api.student.createStudent.useMutation({
+    onSuccess: () => {
+      router.refresh();
+    },
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+    startTransition(async () => {
+      await createStudents.mutateAsync({
+        name: values.name,
+        department: values.department,
+        gender: values.gender,
+        category: values.category,
+        batch: parseInt(values.batch),
+        address: values.address,
+      });
+      router.push("/detail");
+    });
   }
 
   return (
