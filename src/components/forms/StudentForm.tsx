@@ -29,6 +29,7 @@ import {
 import { Textarea } from "../ui/textarea";
 import { useRouter } from "next/navigation";
 import { api } from "@/trpc/react";
+import toast from "react-hot-toast";
 
 const StudentForm = () => {
   const router = useRouter();
@@ -71,6 +72,7 @@ const StudentForm = () => {
         batch: parseInt(values.batch),
         address: values.address,
       });
+      toast.success("Student detail successfully added!");
       router.push("/detail");
     });
   }
