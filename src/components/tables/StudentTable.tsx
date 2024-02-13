@@ -10,12 +10,14 @@ import {
 } from "@/components/ui/table";
 
 import { api } from "@/trpc/server";
+import { Button } from "../ui/button";
+import Link from "next/link";
 
-const HomeTable = async () =>{
-    const students = await api.student.findMany.query();
-    return (
-        <div>
-            <Table className="mt-3 border">
+const HomeTable = async () => {
+  const students = await api.student.findMany.query();
+  return (
+    <div>
+      <Table className="mt-3 border">
         <TableHeader>
           <TableRow>
             <TableHead>name</TableHead>
@@ -24,6 +26,7 @@ const HomeTable = async () =>{
             <TableHead>category</TableHead>
             <TableHead>batch</TableHead>
             <TableHead>Address</TableHead>
+            <TableHead>Update</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="">
@@ -35,13 +38,17 @@ const HomeTable = async () =>{
               <TableCell>{student.category}</TableCell>
               <TableCell>{student.batch}</TableCell>
               <TableCell>{student.address}</TableCell>
-            </TableRow>
+              <TableCell>
+                <Button>
+                  <Link href={`/edit/${student.id}`}>update</Link>
+                </Button>
+              </TableCell>
+            </TableRow> 
           ))}
         </TableBody>
       </Table>
-        </div>
-
-    )
-}
+    </div>
+  );
+};
 
 export default HomeTable;
