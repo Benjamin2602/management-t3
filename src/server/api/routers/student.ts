@@ -67,7 +67,7 @@ export const studentRouter = createTRPCRouter({
       return updateStudents;
     }),
 
-    //prefill form with student data to edit
+  //prefill form with student data to edit
   getStudent: publicProcedure
     .input(
       z.object({
@@ -81,5 +81,21 @@ export const studentRouter = createTRPCRouter({
         },
       });
       return student;
+    }),
+
+  //delete student
+  deleteStudent: publicProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const deleteStudent = await ctx.db.student.delete({
+        where: {
+          id: input.id,
+        },
+      });
+      return deleteStudent;
     }),
 });

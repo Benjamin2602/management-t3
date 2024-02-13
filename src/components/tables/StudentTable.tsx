@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 import {
@@ -9,15 +10,32 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { api } from "@/trpc/server";
+import { api } from "@/trpc/react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { number } from "zod";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
-const HomeTable = async () => {
-  const students = await api.student.findMany.query();
+const HomeTable = () => {
+  const utils = api.useUtils();
+  const { data: students } = api.student.findMany.useQuery();
+  const router = useRouter();
+  const { mutate: deleteStudents } = api.student.deleteStudent.useMutation({
+    onSuccess: async () => {
+      await utils.student.invalidate();
+      toast.success("Student detail successfully deleted!");
+      router.refresh();
+    },
+  });
+  function onClicks(id: number) {
+    deleteStudents({ id });
+    // router.push("/detail");
+  }
+
   return (
     <div>
-      <Table className="mt-3 border">
+      <Table className="mx-auto mt-3 w-1/2 border">
         <TableHeader>
           <TableRow>
             <TableHead>name</TableHead>
@@ -27,6 +45,7 @@ const HomeTable = async () => {
             <TableHead>batch</TableHead>
             <TableHead>Address</TableHead>
             <TableHead>Update</TableHead>
+            <TableHead>Delete</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="">
@@ -43,7 +62,10 @@ const HomeTable = async () => {
                   <Link href={`/edit/${student.id}`}>update</Link>
                 </Button>
               </TableCell>
-            </TableRow> 
+              <TableCell>
+                <Button onClick={() => onClicks(student.id)}>delete</Button>
+              </TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>
